@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="logApiMapper" >
+	
+	<select id="select" resultType="com.muarine.entity.LogApi">
+		select 
+			`id`, `api`, `action`, `method`,`ip`, `running_time`, `create_time` 
+		from 
+			system_api_log
+		order by id desc 
+	</select>
+	
+	<insert id="insert" parameterType="com.muarine.entity.LogApi">
+		insert into system_api_log
+	    <trim prefix="(" suffix=")" suffixOverrides="," >
+	      <if test="id != null" >
+	        id,
+	      </if>
+	      <if test="api != null" >
+	        api,
+	      </if>
+	      <if test="action != null" >
+	        action,
+	      </if>
+	      <if test="method != null" >
+	        method,
+	      </if>
+	      <if test="ip != null" >
+	        ip,
+	      </if>
+	      <if test="running_time != null" >
+	        running_time,
+	      </if>
+	      <if test="create_time != null" >
+	        create_time,
+	      </if>
+	    </trim>
+	    <trim prefix="values (" suffix=")" suffixOverrides="," >
+	      <if test="id != null" >
+	        #{id},
+	      </if>
+	      <if test="api != null" >
+	        #{api},
+	      </if>
+	      <if test="action != null" >
+	        #{action},
+	      </if>
+	      <if test="method != null" >
+	        #{method},
+	      </if>
+	      <if test="ip != null" >
+	        #{ip},
+	      </if>
+	      <if test="running_time != null" >
+	        #{running_time},
+	      </if>
+	      <if test="create_time != null" >
+	        #{create_time},
+	      </if>
+	    </trim>
+	</insert>
+	
+</mapper>

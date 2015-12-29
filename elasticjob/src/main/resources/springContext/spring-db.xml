@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+		http://www.springframework.org/schema/tx 
+        http://www.springframework.org/schema/tx/spring-tx-4.2.xsd">
+
+	<bean id="dataSource" class="org.apache.tomcat.jdbc.pool.DataSource"
+		destroy-method="close">
+		<property name="poolProperties">
+			<bean class="org.apache.tomcat.jdbc.pool.PoolProperties">
+				<property name="jdbcInterceptors"
+					value="org.apache.tomcat.jdbc.pool.interceptor.ConnectionState;org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer" />
+				<property name="testWhileIdle" value="true" />
+				<property name="testOnBorrow" value="true" />
+				<property name="removeAbandoned" value="true" />
+				<property name="logAbandoned" value="true" />
+				<property name="validationQuery" value="SELECT 1" />
+				<property name="maxActive" value="10" />
+				<property name="initialSize" value="1" />
+				<property name="minIdle" value="1" />
+				<property name="maxIdle" value="2" />
+				<property name="maxWait" value="100000" />
+
+				<property name="driverClassName" value="${jdbc.driverClassName}" />
+				<property name="url" value="${jdbc.url}" />
+				<property name="username" value="${jdbc.username}" />
+				<property name="password" value="${jdbc.password}" />
+
+			</bean>
+		</property>
+	</bean>
+	
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="configLocation" value="classpath:mybatis-config.xml" />
+		<property name="dataSource" ref="dataSource" />
+		<property name="mapperLocations" value="classpath*:mapper/**/*Mapper.xml" />
+	</bean>
+
+	<bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg index="0" ref="sqlSessionFactory" />
+	</bean>
+
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.muarine.mapper" />
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
+	</bean>
+
+	<!-- 配置事务管理器 -->
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	
+	<!-- 配置线程池 
+		(1)ThreadPoolExecutor.AbortPolicy策略，是默认的策略,处理程序遭到拒绝将抛出运行时 RejectedExecutionException。 
+		(2)ThreadPoolExecutor.CallerRunsPolicy策略 ,调用者的线程会执行该任务,如果执行器已关闭,则丢弃. 
+		(3)ThreadPoolExecutor.DiscardPolicy策略，不能执行的任务将被丢弃. 
+		(4)ThreadPoolExecutor.DiscardOldestPolicy策略，如果执行程序尚未关闭，则位于工作队列头部的任务将被删除，然后重试执行程序（如果再次失败，则重复此过程）
+	-->  
+	<bean id ="threadPoolTaskExecutor"  class ="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor" >  
+	    <!-- 线程池维护线程的最少数量 -->  
+		<property name ="corePoolSize" value ="50" />  
+	    <!-- 线程池维护线程的最大数量 -->  
+		<property name ="maxPoolSize" value ="50" />  
+	    <!-- 线程池维护线程所允许的空闲时间 -->  
+		<property name ="keepAliveSeconds" value ="60" />  
+	    <!-- 线程池所使用的缓冲队列 -->  
+		<property name ="queueCapacity" value ="300" />
+		<!-- 线程池对拒绝任务(无线程可用)的处理策略 -->  
+	    <property name="rejectedExecutionHandler">  
+	      <bean class="java.util.concurrent.ThreadPoolExecutor$AbortPolicy" />  
+	    </property>
+		<!-- 主程序停止后不中断队列里的线程 -->
+		<!-- <property name ="waitForTasksToCompleteOnShutdown" value ="true" /> -->
+	</bean>
+</beans>
